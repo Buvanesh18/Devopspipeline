@@ -1,0 +1,7 @@
+{
+  "packageDirectories": [],
+  "namespace": "",
+  "sourceApiVersion": "60.0",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "name": "SalesforceDeployPipeline"
+}
