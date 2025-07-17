@@ -20,9 +20,7 @@ env:
   GIT_SERVER_URL: ${{ vars.GIT_SERVER_URL }}
   GIT_SOURCE_BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
   GIT_TARGET_BRANCH_NAME: ${{ github.event.pull_request.base.ref }}
-permissions:
-  pull-requests: write
-  contents: read
+
 
 jobs:
   SFDX_Build_Pipeline:
