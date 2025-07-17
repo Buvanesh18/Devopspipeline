@@ -12,9 +12,6 @@ on:
       - build/UAT
     paths:
       - 'src/**'
-permissions:  # ✅ Add this block to fix 403 error
-  contents: read
-  pull-requests: write
 
 env:
   USERNAME: ${{ vars.EMAIL_USERNAME }}
