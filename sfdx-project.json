@@ -1,13 +1,11 @@
 {
   "packageDirectories": [
     {
-      "path": "src",
+      "path": "delta",
       "default": true
     }
   ],
   "namespace": "",
-  "sourceApiVersion": "60.0",
-  "sfdcLoginUrl": "https://login.salesforce.com",
-  "name": "SalesforceDeployPipeline"
+  "sourceApiVersion": "59.0"
 }
 
