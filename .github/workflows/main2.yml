@@ -15,7 +15,7 @@ jobs:
         run: |
           echo "Reading from GitHub Environment Variable..."
           i=0
-          echo "$CREDENTIALS" | jq -c '.[]' | while read cred; do
+          for cred in $(echo "$CREDENTIALS" | jq -c '.[]'); do
             USER=$(echo $cred | jq -r '.username')
             PASS=$(echo $cred | jq -r '.password')
             echo "Processing user: $USER"
@@ -31,10 +31,13 @@ jobs:
         run: |
           echo "We got ${{ steps.creds.outputs.count }} credentials"
           for i in $(seq 0 $(( ${{ steps.creds.outputs.count }} - 1 ))); do
-            USER_VAR="user_$i"
-            PASS_VAR="pass_$i"
-            USER=${{ steps.creds.outputs['user_0'] }}
-            PASS=${{ steps.creds.outputs['pass_0'] }}
-            echo "User $i: $USER_VAR=${!USER_VAR}, $PASS_VAR=${!PASS_VAR}"
+            USER_KEY="user_$i"
+            PASS_KEY="pass_$i"
+            USER="${{ steps.creds.outputs[user_0] }}"
+            PASS="${{ steps.creds.outputs[pass_0] }}"
+            # Instead of hardcoding index 0, use eval trick:
+            USER=$(eval echo "\${{ steps.creds.outputs.user_$i }}")
+            PASS=$(eval echo "\${{ steps.creds.outputs.pass_$i }}")
+            echo "Credential $i -> USER=$USER , PASS=$PASS"
           done
 
