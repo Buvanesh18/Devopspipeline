@@ -10,14 +10,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Loop through credentials
+      - name: Loop through credentials and set output
+        id: creds
         run: |
           echo "Reading from GitHub Environment Variable..."
+          i=0
           echo "$CREDENTIALS" | jq -c '.[]' | while read cred; do
             USER=$(echo $cred | jq -r '.username')
             PASS=$(echo $cred | jq -r '.password')
-            echo "Processing user: $USER : $PASS"
-            # 👉 Replace this with your actual command using $USER and $PASS
+            echo "Processing user: $USER"
+            echo "user_$i=$USER" >> $GITHUB_OUTPUT
+            echo "pass_$i=$PASS" >> $GITHUB_OUTPUT
+            i=$((i+1))
           done
+          echo "count=$i" >> $GITHUB_OUTPUT
         env:
           CREDENTIALS: ${{ vars.CREDENTIALS }}
+
+      - name: Print credentials in next step
+        run: |
+          echo "We got ${{ steps.creds.outputs.count }} credentials"
+          for i in $(seq 0 $(( ${{ steps.creds.outputs.count }} - 1 ))); do
+            USER_VAR="user_$i"
+            PASS_VAR="pass_$i"
+            USER=${{ steps.creds.outputs['user_0'] }}
+            PASS=${{ steps.creds.outputs['pass_0'] }}
+            echo "User $i: $USER_VAR=${!USER_VAR}, $PASS_VAR=${!PASS_VAR}"
+          done
+
