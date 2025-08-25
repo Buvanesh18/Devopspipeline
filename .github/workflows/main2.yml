@@ -1,0 +1,23 @@
+name: Use Credentials JSON
+
+on:
+  workflow_dispatch:
+
+jobs:
+  iterate-creds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Loop through credentials
+        run: |
+          echo "Reading from GitHub Environment Variable..."
+          echo "$CREDENTIALS" | jq -c '.[]' | while read cred; do
+            USER=$(echo $cred | jq -r '.username')
+            PASS=$(echo $cred | jq -r '.password')
+            echo "Processing user: $USER"
+            # 👉 Replace this with your actual command using $USER and $PASS
+          done
+        env:
+          CREDENTIALS: ${{ vars.CREDENTIALS }}
