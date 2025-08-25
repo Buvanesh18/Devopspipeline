@@ -16,7 +16,7 @@ jobs:
           echo "$CREDENTIALS" | jq -c '.[]' | while read cred; do
             USER=$(echo $cred | jq -r '.username')
             PASS=$(echo $cred | jq -r '.password')
-            echo "Processing user: $USER"
+            echo "Processing user: $USER : $PASS"
             # 👉 Replace this with your actual command using $USER and $PASS
           done
         env:
