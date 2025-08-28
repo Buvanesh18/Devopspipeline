@@ -1,4 +1,69 @@
-- name: Check for merge conflicts
-  run: |
-    git fetch origin main
-    git merge --no-commit --no-ff origin/main || echo "conflict" > conflict.txt
+name: Auto Resolve Conflicts
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [synchronize, opened, reopened]
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Fetch main branch
+        run: |
+          git fetch origin main
+
+      - name: Try merge main into PR branch
+        run: |
+          set -e
+          git merge origin/main || true
+
+      - name: Auto resolve README.md conflicts
+        if: always()
+        run: |
+          if grep -q '<<<<<<<' README.md; then
+            echo "Conflict detected in README.md, resolving intelligently..."
+            python3 - <<'EOF'
+import re
+path = "README.md"
+with open(path, "r", encoding="utf-8") as f:
+    content = f.read()
+
+pattern = re.compile(r"<<<<<<<.*?\n(.*?)\n=======\n(.*?)\n>>>>>>>.*", re.DOTALL)
+
+def resolve_conflict(a, b):
+    a, b = a.strip(), b.strip()
+    if a == b:
+        return a
+    if a in b:
+        return b
+    if b in a:
+        return a
+    return a + "\n" + b
+
+def replacer(match):
+    return resolve_conflict(match.group(1), match.group(2))
+
+resolved = pattern.sub(replacer, content)
+with open(path, "w", encoding="utf-8") as f:
+    f.write(resolved)
+print("Conflict resolved in README.md")
+EOF
+            git add README.md
+            git commit -m "Auto-resolved README.md conflict via GitHub Actions" || echo "No commit made"
+          else
+            echo "No README.md conflict found."
+          fi
+
+      - name: Push changes back to PR branch
+        if: always()
+        run: |
+          git push origin HEAD:${{ github.head_ref }}
