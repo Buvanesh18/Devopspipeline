@@ -3,6 +3,6 @@ public class HelloPipeline {
         System.debug('Hello from the pipeline!');
     }
     //add comment
-                                           // Trigger build pipeline - dummy change
+                                           // Trigger build pipeline - dummy change clown
 
 }
